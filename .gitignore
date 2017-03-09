@@ -1,0 +1,13 @@
+# dependencies
+node_modules
+
+#coverage
+coverage
+integration-coverage
+.nyc_output
+
+#logs
+npm-debug.log*
+
+#ide
+.idea

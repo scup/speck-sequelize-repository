@@ -1,0 +1,5 @@
+{
+  "name": "All models configurator",
+  "private": true,
+  "main": "./sequelizeModels"
+}
