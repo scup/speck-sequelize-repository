@@ -1,6 +1,6 @@
 {
   "name": "speck-sequelize-repository",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Repositories using Speck",
   "main": "src/index.js",
   "scripts": {
@@ -21,7 +21,7 @@
     "Repositories"
   ],
   "author": "Scup",
-  "license": "MIT",
+  "license": "GNU",
   "bugs": {
     "url": "https://github.com/scup/speck-sequelize-repository/issues"
   },
