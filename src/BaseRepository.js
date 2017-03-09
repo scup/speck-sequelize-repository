@@ -132,10 +132,11 @@ module.exports = {
   for (sequelizeModel, mapper, composition = {}) {
     const baseRepository = new BaseRepository({ sequelizeModel, mapper })
 
-    const boundMethods = Object.keys(composition).reduce((newMethods, methodName) => {
-      newMethods[methodName] = composition[methodName].bind(baseRepository)
-      return newMethods
-    }, {})
+    const boundMethods = Object.keys(composition)
+      .reduce((newMethods, methodName) => {
+        newMethods[methodName] = composition[methodName].bind(baseRepository)
+        return newMethods
+      }, {})
 
     return Object.assign(baseRepository, boundMethods)
   }
