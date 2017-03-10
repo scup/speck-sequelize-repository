@@ -1,0 +1,11 @@
+language: node_js
+node_js:
+- '6.1'
+cache:
+  npm: true
+  directories:
+  - node_modules/
+script: npm run coverage
+env:
+  global:
+    secure: UFlDCAMqoIsOgKFyGHc/thqDeFMRQRymxHZwQa1yYyYeLj1mTOefR1MmP8d3XXUXu+YdCwbO01sMozpju9dhZOneQEF4Wzk5LngvzKgPu6TvaJ4UeDoUaR5f6jPQh9EFgcuYge7E1SVUSC2DQIL5lcLBWHdHWA6NFGhr6gckAVZ+rNMtZ2b27soUPlmPq4h/yuMpSIuoy0jgzmWqRyfc3lWSbkreeF6oOvp5+9GmW4fXDCiVA9/mJwQSv23q7KDXLUk0qxT+BzwAeeVgjP1IZW4Ym7HNqpGtDuCOeSsQa/ztLh5GRIGi7mde3H7VdBb/zR74xNatqKObcH/8OuIyaKQNLORBpjn0yj+MIPcJvX4f9N0mmljYyWlJuV2iKOCY+i1fklmhsalfRYD3AzKpcpAtJ/1+9V7Aqm1npqUuEhX+pzLal2lnUQoIpD2NaYDI5iy0hfX15oH11fdOwE3AzQrDFuBlbBeivPLfYjDi0tVPfkOa5w/C6GRXNlat6VW8W+pZ+lPzli+pn8f/gyS/0A0aJYfOThOcUhTQMLzH3qxMhKsuJ+yOqU4mehSH87k8z7ezYJuretlH5osY1nqRk0UwXATbh/8IoDu3mvepvirXeLe1nJImq9amFc5DLzwmSoSR6PeqLpmAT413uzE/QGmBodWeogYUO4NNX0DOKNE=
