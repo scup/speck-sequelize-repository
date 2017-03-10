@@ -33,8 +33,7 @@ describe('sequelizeModels', () => {
         password: 'some_password'
       },
       files: {
-        modelDir: dirName,
-        extensionRegex: /model\.js$/
+        modelDir: dirName
       }
     }
 

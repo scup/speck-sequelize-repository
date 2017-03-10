@@ -25,6 +25,51 @@ describe('BaseRepository', () => {
     repository = BaseRepository.for(sequelizeModel, mapper)
   })
 
+  describe('#for', () => {
+    it('creates a repository with basic methods', () => {
+      sequelizeModel = {
+        primaryKeys: {
+          primaryKey1: null
+        }
+      }
+      mapper = {}
+
+      const baseRepository = BaseRepository.for(sequelizeModel, mapper)
+
+      expect(baseRepository).to.have.property('findOneBy')
+      expect(baseRepository).to.have.property('findOneByCriterias')
+      expect(baseRepository).to.have.property('findAllBy')
+      expect(baseRepository).to.have.property('findAllByCriterias')
+      expect(baseRepository).to.have.property('save')
+      expect(baseRepository).to.have.property('update')
+      expect(baseRepository).to.have.property('delete')
+    })
+
+    it('creates a repository with basic methods and custom methods from composition', () => {
+      sequelizeModel = {
+        primaryKeys: {
+          primaryKey1: null
+        }
+      }
+      mapper = {}
+
+      const composition = {
+        aMethod () {}
+      }
+
+      const baseRepository = BaseRepository.for(sequelizeModel, mapper, composition)
+
+      expect(baseRepository).to.have.property('findOneBy')
+      expect(baseRepository).to.have.property('findOneByCriterias')
+      expect(baseRepository).to.have.property('findAllBy')
+      expect(baseRepository).to.have.property('findAllByCriterias')
+      expect(baseRepository).to.have.property('save')
+      expect(baseRepository).to.have.property('update')
+      expect(baseRepository).to.have.property('delete')
+      expect(baseRepository).to.have.property('aMethod')
+    })
+  })
+
   describe('#save', () => {
     it('saves the instance as a new Record mantaning Instance values', () => {
       const newRecordInstance = {

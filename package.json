@@ -9,7 +9,7 @@
     "lint:watch": "watch -p \"+(src)/**/*.js\" -c \"yarn lint\"",
     "test": "npm run lint && NODE_ENV=test NODE_PATH=./ mocha \"src/**/*.test.js\" --colors --require tests/support.js --reporter spec",
     "test:watch": "npm test -- --watch",
-    "coverage": "nyc npm test"
+    "coverage": "npm run lint && nyc npm test"
   },
   "repository": {
     "type": "git",

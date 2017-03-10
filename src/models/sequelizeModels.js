@@ -22,7 +22,7 @@ const associateModels = (models) => (modelName) => {
 const readModels = (sequelize, fileConfig, injection) => {
   const { join, fs } = Object.assign({}, dependencies, injection)
 
-  const extensionRegex = fileConfig.extensionRegex || /.js$/
+  const extensionRegex = fileConfig.extensionRegex || /model\.js$/
   const modelDir = fileConfig.modelDir
 
   const models = fs
