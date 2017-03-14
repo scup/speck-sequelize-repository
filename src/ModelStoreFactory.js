@@ -1,5 +1,7 @@
 const path = require('path')
 
+const ModelStore = require('./ModelStore')
+
 const dependencies = {
   Sequelize: require('sequelize'),
   join: path.join,
@@ -55,7 +57,7 @@ const create = (configuration, injection) => {
 
   const models = readModels(sequelize, rootDir, extensionRegex, injection)
 
-  return Object.assign({}, models, { sequelize })
+  return new ModelStore(Object.assign({}, models, { sequelize }))
 }
 
 const modelStoreFactory = {

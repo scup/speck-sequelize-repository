@@ -1,6 +1,6 @@
 {
   "name": "speck-sequelize-repository",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Repositories using Speck",
   "main": "src/index.js",
   "scripts": {
