@@ -211,6 +211,56 @@ describe('BaseRepository', () => {
     })
   })
 
+  describe('#updateByDiff', () => {
+    it('Does not update when there are no changes', () => {
+      const recordInstance = {
+        primaryKey1: 'pk1',
+        fieldToUpdate: 'old value',
+        nullFieldToUpdate: null,
+        fieldToKeepUnchanged: 'value'
+      }
+
+      const copy = Object.assign({}, recordInstance)
+
+      const updateMock = sinon.mock(repository)
+        .expects('update')
+        .never()
+
+      return repository.updateByDiff(recordInstance, copy)
+        .then((result) => {
+          expect(recordInstance).to.equal(result)
+
+          updateMock.verify()
+        })
+    })
+
+    it('Updates the instance', () => {
+      const recordInstance = {
+        primaryKey1: 'pk1',
+        fieldToUpdate: 'old value',
+        nullFieldToUpdate: null,
+        fieldToKeepUnchanged: 'value'
+      }
+
+      const copy = Object.assign({}, recordInstance, {
+        fieldToUpdate: 'new value',
+        nullFieldToUpdate: 'not null anymore!'
+      })
+
+      const updateMock = sinon.mock(repository)
+        .expects('update')
+        .withExactArgs(copy, ['fieldToUpdate', 'nullFieldToUpdate'], undefined)
+        .returns(Promise.resolve(copy))
+
+      return repository.updateByDiff(recordInstance, copy)
+        .then((result) => {
+          expect(copy).to.equal(result)
+
+          updateMock.verify()
+        })
+    })
+  })
+
   describe('#findOneBy/#findAllBy', () => {
     const methods = [{
       toTest: 'findOneBy',
