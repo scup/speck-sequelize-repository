@@ -50,7 +50,7 @@ class BaseRepository {
     return this.mapper.createEntity(assignedValues, true)
   }
 
-  update (entityInstance, fields, relationshipFields = {}) {
+  update (entityInstance, fields, relationshipFields = {}, whereFields = []) {
     const { sequelizeModel, mapper } = this
 
     const entityFieldValues = fields.reduce((all, field) =>
@@ -66,6 +66,8 @@ class BaseRepository {
       where: mapper.toDatabase(entityKeyValues),
       fields: Object.keys(columnValues)
     }
+    
+    whereFields.forEach((field) => Object.assign(entityKeyValues, { [field]: entityInstance[field] }))
 
     return sequelizeModel
       .update(columnValues, constraints)
