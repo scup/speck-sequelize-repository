@@ -174,7 +174,7 @@ describe('BaseRepository', () => {
       return repository.update(recordInstance, fieldsToUpdate)
         .then(result => expect(recordInstance).to.equal(result))
     })
-    
+
     it('updates with no primary key field', () => {
       const recordInstance = {
         noPrimaryKey: 'npk1',

@@ -66,7 +66,7 @@ class BaseRepository {
       where: mapper.toDatabase(entityKeyValues),
       fields: Object.keys(columnValues)
     }
-    
+
     whereFields.forEach((field) => Object.assign(entityKeyValues, { [field]: entityInstance[field] }))
 
     return sequelizeModel
