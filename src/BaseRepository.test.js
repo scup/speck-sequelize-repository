@@ -175,6 +175,46 @@ describe('BaseRepository', () => {
         .then(result => expect(recordInstance).to.equal(result))
     })
 
+    it('updates with no primary key field', () => {
+      const recordInstance = {
+        noPrimaryKey: 'npk1',
+        fieldToUpdate: 'new value',
+        nullFieldToUpdate: null,
+        fieldToKeepUnchanged: 'value'
+      }
+
+      const fieldsToUpdate = [ 'fieldToUpdate', 'nullFieldToUpdate' ]
+      const whereFields = [ 'noPrimaryKey' ]
+
+      mapper.toDatabase = sinon.stub()
+      mapper.toDatabase
+        .withArgs({ fieldToUpdate: recordInstance.fieldToUpdate, nullFieldToUpdate: 'NULL' })
+        .returns({ fieldToUpdate: recordInstance.fieldToUpdate, nullFieldToUpdate: 'NULL' })
+      mapper.toDatabase
+        .withArgs({ primaryKey1: undefined, noPrimaryKey: recordInstance.noPrimaryKey })
+        .returns({ primaryKey1: undefined, noPrimaryKey: recordInstance.noPrimaryKey })
+
+      const expectedColumnsToChange = {
+        fieldToUpdate: recordInstance.fieldToUpdate,
+        nullFieldToUpdate: recordInstance.nullFieldToUpdate
+      }
+      const expectedConstraints = {
+        where: {
+          primaryKey1: undefined,
+          noPrimaryKey: recordInstance.noPrimaryKey
+        },
+        fields: fieldsToUpdate
+      }
+
+      sequelizeModel.update = sinon.mock()
+        .once()
+        .withExactArgs(expectedColumnsToChange, expectedConstraints)
+        .returns(Promise.resolve('update result'))
+
+      return repository.update(recordInstance, fieldsToUpdate, {}, whereFields)
+        .then(result => expect(recordInstance).to.equal(result))
+    })
+
     it('update relationship fields', () => {
       const recordInstance = {
         primaryKey1: 'pk1',
