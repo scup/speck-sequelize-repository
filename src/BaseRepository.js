@@ -62,12 +62,12 @@ class BaseRepository {
       [this.primaryKey]: entityInstance[this.primaryKey]
     }
 
+    whereFields.forEach((field) => Object.assign(entityKeyValues, { [field]: entityInstance[field] }))
+
     const constraints = {
       where: mapper.toDatabase(entityKeyValues),
       fields: Object.keys(columnValues)
     }
-
-    whereFields.forEach((field) => Object.assign(entityKeyValues, { [field]: entityInstance[field] }))
 
     return sequelizeModel
       .update(columnValues, constraints)
