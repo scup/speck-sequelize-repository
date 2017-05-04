@@ -1,6 +1,6 @@
 {
   "name": "speck-sequelize-repository",
-  "version": "0.0.6",
+  "version": "0.0.8",
   "description": "Repositories using Speck",
   "main": "src/index.js",
   "scripts": {
@@ -13,7 +13,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/scup/speck"
+    "url": "https://github.com/scup/speck-sequelize-repository"
   },
   "keywords": [
     "Javascript",
@@ -25,7 +25,6 @@
   "bugs": {
     "url": "https://github.com/scup/speck-sequelize-repository/issues"
   },
-  "homepage": "https://github.io/scup/speck-sequelize-repository",
   "dependencies": {
     "joi": "^9.1.1",
     "object-mapper": "^3.0.1",
