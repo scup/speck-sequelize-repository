@@ -25,51 +25,6 @@ describe('BaseRepository', () => {
     repository = BaseRepository.for(sequelizeModel, mapper)
   })
 
-  describe('#for', () => {
-    it('creates a repository with basic methods', () => {
-      sequelizeModel = {
-        primaryKeys: {
-          primaryKey1: null
-        }
-      }
-      mapper = {}
-
-      const baseRepository = BaseRepository.for(sequelizeModel, mapper)
-
-      expect(baseRepository).to.have.property('findOneBy')
-      expect(baseRepository).to.have.property('findOneByCriterias')
-      expect(baseRepository).to.have.property('findAllBy')
-      expect(baseRepository).to.have.property('findAllByCriterias')
-      expect(baseRepository).to.have.property('save')
-      expect(baseRepository).to.have.property('update')
-      expect(baseRepository).to.have.property('delete')
-    })
-
-    it('creates a repository with basic methods and custom methods from composition', () => {
-      sequelizeModel = {
-        primaryKeys: {
-          primaryKey1: null
-        }
-      }
-      mapper = {}
-
-      const composition = {
-        aMethod () {}
-      }
-
-      const baseRepository = BaseRepository.for(sequelizeModel, mapper, composition)
-
-      expect(baseRepository).to.have.property('findOneBy')
-      expect(baseRepository).to.have.property('findOneByCriterias')
-      expect(baseRepository).to.have.property('findAllBy')
-      expect(baseRepository).to.have.property('findAllByCriterias')
-      expect(baseRepository).to.have.property('save')
-      expect(baseRepository).to.have.property('update')
-      expect(baseRepository).to.have.property('delete')
-      expect(baseRepository).to.have.property('aMethod')
-    })
-  })
-
   describe('#save', () => {
     it('saves the instance as a new Record mantaning Instance values', () => {
       const newRecordInstance = {
@@ -281,6 +236,18 @@ describe('BaseRepository', () => {
     })
   })
 
+  describe('#countByCriterias', () => {
+    it('counts the number of registers, given criteria', () => {
+      const criterias = 'criterias'
+      sequelizeModel.count = sinon.mock()
+        .once()
+        .withExactArgs({ where: criterias })
+        .returns('count result')
+
+      expect(repository.countByCriterias(criterias)).to.equal('count result')
+    })
+  })
+
   context('helpers method', () => {
     let mockRepository
 
@@ -288,14 +255,26 @@ describe('BaseRepository', () => {
 
     afterEach(() => mockRepository.restore())
 
-    it('finds all by criterias', () => {
-      const where = { field: 'anyWhere condition' }
+    describe('#findAllByCriterias', () => {
+      it('Finds registers which are not soft-deleted ', () => {
+        const where = { field: 'anyWhere condition' }
 
-      mockRepository.expects('findAllBy')
-        .withExactArgs({ where, raw: true })
-        .returns('mock result')
+        mockRepository.expects('findAllBy')
+          .withExactArgs({ where, raw: true, paranoid: true })
+          .returns('mock result')
 
-      expect(repository.findAllByCriterias(where)).to.equal('mock result')
+        expect(repository.findAllByCriterias(where)).to.equal('mock result')
+      })
+
+      it('Finds registers ignoring the soft-delete flag', () => {
+        const where = { field: 'anyWhere condition' }
+
+        mockRepository.expects('findAllBy')
+          .withExactArgs({ where, raw: true, paranoid: false })
+          .returns('mock result')
+
+        expect(repository.findAllByCriterias(where, { paranoid: false })).to.equal('mock result')
+      })
     })
 
     it('finds one by criterias', () => {
