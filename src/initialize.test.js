@@ -99,4 +99,32 @@ describe('initialize', () => {
     it('log an error message on console', () => consoleMock.log.verify())
     it('returns an error', () => expect(initializeResult).to.be.eventually.rejectedWith(error))
   })
+
+  describe('do not connect in database', () => {
+    before(() => {
+      configuration.skipConnection = true
+
+      modelStoreMock.sequelize.sync = sinon.mock()
+        .never()
+
+      modelStoreFactoryMock.create = sinon.mock()
+        .once()
+        .withArgs(configuration)
+        .returns(modelStoreMock)
+
+      consoleMock.log = sinon.mock()
+        .never()
+
+      initializeResult = initialize(configuration, { modelStoreFactory: modelStoreFactoryMock, console: consoleMock })
+    })
+
+    after(() => {
+      delete configuration.skipConnection
+    })
+
+    it('does not syncronizes with sequelize', () => modelStoreMock.sequelize.sync.verify())
+    it('creates a model store', () => modelStoreFactoryMock.create.verify())
+    it('does not log a status message on console', () => consoleMock.log.verify())
+    it('returns a model store', () => expect(initializeResult).to.be.eventually.equal(modelStoreMock))
+  })
 })

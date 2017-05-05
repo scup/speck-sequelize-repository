@@ -8,6 +8,10 @@ module.exports = function initialize (configuration, injection) {
 
   const modelStore = modelStoreFactory.create(configuration, injection)
 
+  if (configuration.skipConnection) {
+    return Promise.resolve(modelStore)
+  }
+
   return modelStore.sequelize
           .sync()
           .then(sequelize => {
