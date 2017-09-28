@@ -79,25 +79,23 @@ describe('initialize', () => {
       error = 'an error'
 
       modelStoreMock.sequelize.sync = sinon.mock()
-        .once()
-        .returns(Promise.reject(error))
+        .rejects({ message: error })
 
       modelStoreFactoryMock.create = sinon.mock()
-        .once()
         .withArgs(configuration)
         .returns(modelStoreMock)
 
       consoleMock.log = sinon.mock()
-        .once()
-        .withExactArgs(`Could not connect to database`, error)
+        .withExactArgs(`Could not connect to database`, sinon.match.any)
 
       initializeResult = initialize(configuration, { modelStoreFactory: modelStoreFactoryMock, console: consoleMock })
+      initializeResult.catch(() => {})
     })
 
     it('syncronizes with sequelize', () => modelStoreMock.sequelize.sync.verify())
     it('creates a model store', () => modelStoreFactoryMock.create.verify())
     it('log an error message on console', () => consoleMock.log.verify())
-    it('returns an error', () => expect(initializeResult).to.be.eventually.rejectedWith(error))
+    it('returns an error', () => expect(initializeResult).to.eventually.rejectedWith(error))
   })
 
   describe('do not connect in database', () => {

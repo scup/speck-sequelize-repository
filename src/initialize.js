@@ -20,7 +20,7 @@ module.exports = function initialize (configuration, injection) {
             return modelStore
           })
           .catch(reason => {
-            console.log(`Could not connect to database`, reason)
+            console.log(`Could not connect to database`, reason.message)
             return Promise.reject(reason)
           })
 }
