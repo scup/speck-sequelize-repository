@@ -56,11 +56,9 @@ class BaseRepository {
   updateBy (entityInstance, fields, relationshipFields = {}, whereFields = []) {
     const fieldsToChange = Object.keys(fields)
 
-    // fieldsToChange.forEach(fieldName => {
-    //   entityInstance[fieldName] = fields[fieldName]
-    // })
-
-    console.log('entityInstance:::', entityInstance)
+    fieldsToChange.forEach(fieldName => {
+      entityInstance[fieldName] = fields[fieldName]
+    })
 
     return this.update(entityInstance, fieldsToChange, relationshipFields, whereFields)
   }
