@@ -91,125 +91,24 @@ describe('BaseRepository', () => {
     })
   })
 
-  describe('#updateBy', () => {
-    it('updates the specified fields of the instance\'s Record ', () => {
+  describe('#updateFields', () => {
+    it('updates fields by when pass object', () => {
       const recordInstance = {
-        primaryKey1: 'pk1',
-        fieldToUpdate: 'foo',
-        nullFieldToUpdate: null,
-        fieldToKeepUnchanged: 'value'
+        myField: 'new value'
       }
-
-      const fieldsToUpdate = {
-        fieldToUpdate: 'foo',
-        nullFieldToUpdate: null
-      }
-
-      mapper.toDatabase = sinon.stub()
-      mapper.toDatabase
-        .withArgs({ fieldToUpdate: recordInstance.fieldToUpdate, nullFieldToUpdate: 'NULL' })
-        .returns({ fieldToUpdate: recordInstance.fieldToUpdate, nullFieldToUpdate: 'NULL' })
-      mapper.toDatabase
-        .withArgs({ primaryKey1: recordInstance.primaryKey1 })
-        .returns({ primaryKey1: recordInstance.primaryKey1 })
 
       const expectedColumnsToChange = {
-        fieldToUpdate: recordInstance.fieldToUpdate,
-        nullFieldToUpdate: recordInstance.nullFieldToUpdate
-      }
-      const expectedConstraints = {
-        where: {
-          primaryKey1: recordInstance.primaryKey1
-        },
-        fields: ['fieldToUpdate', 'nullFieldToUpdate']
+        myField: recordInstance.myField
       }
 
-      sequelizeModel.update = sinon.mock()
+      repository.update = sinon.mock()
         .once()
-        .withExactArgs(expectedColumnsToChange, expectedConstraints)
+        .withExactArgs(expectedColumnsToChange, ['myField'], {}, [])
         .returns(Promise.resolve('update result'))
 
-      return repository.updateBy(recordInstance, fieldsToUpdate)
-        .then(result => expect(recordInstance).to.equal(result))
-    })
-
-    it('updates with no primary key field', () => {
-      const recordInstance = {
-        noPrimaryKey: 'npk1',
-        fieldToUpdate: 'value fieldToUpdate',
-        nullFieldToUpdate: null,
-        fieldToKeepUnchanged: 'value'
-      }
-
-      const fieldsToUpdate = {
-        fieldToUpdate: 'value fieldToUpdate',
-        nullFieldToUpdate: null
-      }
-
-      const whereFields = [ 'noPrimaryKey' ]
-
-      mapper.toDatabase = sinon.stub()
-      mapper.toDatabase
-        .withArgs({ fieldToUpdate: recordInstance.fieldToUpdate, nullFieldToUpdate: 'NULL' })
-        .returns({ fieldToUpdate: recordInstance.fieldToUpdate, nullFieldToUpdate: 'NULL' })
-      mapper.toDatabase
-        .withArgs({ primaryKey1: undefined, noPrimaryKey: recordInstance.noPrimaryKey })
-        .returns({ primaryKey1: undefined, noPrimaryKey: recordInstance.noPrimaryKey })
-
-      const expectedColumnsToChange = {
-        fieldToUpdate: recordInstance.fieldToUpdate,
-        nullFieldToUpdate: recordInstance.nullFieldToUpdate
-      }
-      const expectedConstraints = {
-        where: {
-          primaryKey1: undefined,
-          noPrimaryKey: recordInstance.noPrimaryKey
-        },
-        fields: ['fieldToUpdate', 'nullFieldToUpdate']
-      }
-
-      sequelizeModel.update = sinon.mock()
-        .once()
-        .withExactArgs(expectedColumnsToChange, expectedConstraints)
-        .returns(Promise.resolve('update result'))
-
-      return repository.updateBy(recordInstance, fieldsToUpdate, {}, whereFields)
-        .then(result => expect(recordInstance).to.equal(result))
-    })
-
-    it('update relationship fields', () => {
-      const recordInstance = {
-        primaryKey1: 'pk1',
-        relationship: {
-          fieldToUpdate: 'new value'
-        }
-      }
-
-      const fieldsToUpdate = []
-      const relationshipFields = { fieldToUpdate: 'some value' }
-
-      mapper.toDatabase = sinon.stub()
-      mapper.toDatabase
-        .withArgs({})
-        .returns({})
-      mapper.toDatabase
-        .withArgs({ primaryKey1: recordInstance.primaryKey1 })
-        .returns({ primaryKey1: recordInstance.primaryKey1 })
-
-      const expectedConstraints = {
-        where: {
-          primaryKey1: recordInstance.primaryKey1
-        },
-        fields: ['fieldToUpdate']
-      }
-
-      sequelizeModel.update = sinon.mock()
-        .once()
-        .withExactArgs(relationshipFields, expectedConstraints)
-        .returns(Promise.resolve('update result'))
-
-      return repository.updateBy(recordInstance, fieldsToUpdate, relationshipFields)
-        .then(result => expect(recordInstance).to.equal(result))
+      return repository.updateFields(recordInstance, {
+        myField: 'new value'
+      }).then(result => expect(recordInstance).to.deep.equal({ myField: 'new value' }))
     })
   })
 

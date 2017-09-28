@@ -19,7 +19,7 @@ class BaseRepository {
 
     this.save = this.save.bind(this)
     this.update = this.update.bind(this)
-    this.updateBy = this.updateBy.bind(this)
+    this.updateFields = this.updateFields.bind(this)
 
     this.delete = this.delete.bind(this)
   }
@@ -53,10 +53,10 @@ class BaseRepository {
     return this.mapper.createEntity(assignedValues, true)
   }
 
-  updateBy (entityInstance, fields, relationshipFields = {}, whereFields = []) {
-    const fieldsToChange = Object.keys(fields)
+  updateFields (entityInstance, newFields, relationshipFields = {}, whereFields = []) {
+    const fieldsToChange = Object.keys(newFields)
 
-    Object.assign(entityInstance, fields)
+    Object.assign(entityInstance, newFields)
 
     return this.update(entityInstance, fieldsToChange, relationshipFields, whereFields)
   }
