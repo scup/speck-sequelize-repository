@@ -91,6 +91,27 @@ describe('BaseRepository', () => {
     })
   })
 
+  describe('#updateFields', () => {
+    it('updates fields by when pass object', () => {
+      const recordInstance = {
+        myField: 'new value'
+      }
+
+      const expectedColumnsToChange = {
+        myField: recordInstance.myField
+      }
+
+      repository.update = sinon.mock()
+        .once()
+        .withExactArgs(expectedColumnsToChange, ['myField'], {}, [])
+        .returns(Promise.resolve('update result'))
+
+      return repository.updateFields(recordInstance, {
+        myField: 'new value'
+      }).then(result => expect(recordInstance).to.deep.equal({ myField: 'new value' }))
+    })
+  })
+
   describe('#update', () => {
     it('updates the specified fields of the instance\'s Record ', () => {
       const recordInstance = {
