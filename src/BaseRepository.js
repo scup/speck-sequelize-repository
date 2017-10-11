@@ -15,8 +15,11 @@ class BaseRepository {
     this.findAllBy = this.findAllBy.bind(this)
     this.findAllByCriterias = this.findAllByCriterias.bind(this)
 
+    this.countByCriterias = this.countByCriterias.bind(this)
+
     this.save = this.save.bind(this)
     this.update = this.update.bind(this)
+    this.updateFields = this.updateFields.bind(this)
 
     this.delete = this.delete.bind(this)
   }
@@ -50,7 +53,15 @@ class BaseRepository {
     return this.mapper.createEntity(assignedValues, true)
   }
 
-  update (entityInstance, fields, relationshipFields = {}) {
+  updateFields (entityInstance, newFields, relationshipFields = {}, whereFields = []) {
+    const fieldsToChange = Object.keys(newFields)
+
+    Object.assign(entityInstance, newFields)
+
+    return this.update(entityInstance, fieldsToChange, relationshipFields, whereFields)
+  }
+
+  update (entityInstance, fields, relationshipFields = {}, whereFields = []) {
     const { sequelizeModel, mapper } = this
 
     const entityFieldValues = fields.reduce((all, field) =>
@@ -61,6 +72,8 @@ class BaseRepository {
     const entityKeyValues = {
       [this.primaryKey]: entityInstance[this.primaryKey]
     }
+
+    whereFields.forEach((field) => Object.assign(entityKeyValues, { [field]: entityInstance[field] }))
 
     const constraints = {
       where: mapper.toDatabase(entityKeyValues),
@@ -124,8 +137,9 @@ class BaseRepository {
     return this.sequelizeModel.findAll(options).then(this.mapper.toEntity)
   }
 
-  findAllByCriterias (where) {
-    return this.findAllBy({ where, raw: true })
+  findAllByCriterias (where, options = {}) {
+    const { paranoid = true } = options
+    return this.findAllBy({ where, raw: true, paranoid })
   }
 
   findOneByCriterias (where) {
@@ -140,20 +154,21 @@ class BaseRepository {
       raw: true
     })
   }
+
+  countByCriterias (where) {
+    return this.sequelizeModel.count({ where })
+  }
 }
 
-const createRepository = (sequelizeModel, mapper, composition = {}) => {
-  const baseRepository = new BaseRepository({ sequelizeModel, mapper })
+module.exports = {
+  for (sequelizeModel, mapper, composition = {}) {
+    const baseRepository = new BaseRepository({ sequelizeModel, mapper })
 
-  const boundMethods = Object.keys(composition)
-    .reduce((newMethods, methodName) => {
+    const boundMethods = Object.keys(composition).reduce((newMethods, methodName) => {
       newMethods[methodName] = composition[methodName].bind(baseRepository)
       return newMethods
     }, {})
 
-  return Object.assign(baseRepository, boundMethods)
-}
-
-module.exports = {
-  for: createRepository
+    return Object.assign(baseRepository, boundMethods)
+  }
 }

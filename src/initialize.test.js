@@ -79,8 +79,31 @@ describe('initialize', () => {
       error = 'an error'
 
       modelStoreMock.sequelize.sync = sinon.mock()
-        .once()
-        .returns(Promise.reject(error))
+        .rejects({ message: error })
+
+      modelStoreFactoryMock.create = sinon.mock()
+        .withArgs(configuration)
+        .returns(modelStoreMock)
+
+      consoleMock.log = sinon.mock()
+        .withExactArgs(`Could not connect to database`, sinon.match.any)
+
+      initializeResult = initialize(configuration, { modelStoreFactory: modelStoreFactoryMock, console: consoleMock })
+      initializeResult.catch(() => {})
+    })
+
+    it('syncronizes with sequelize', () => modelStoreMock.sequelize.sync.verify())
+    it('creates a model store', () => modelStoreFactoryMock.create.verify())
+    it('log an error message on console', () => consoleMock.log.verify())
+    it('returns an error', () => expect(initializeResult).to.eventually.rejectedWith(error))
+  })
+
+  describe('do not connect in database', () => {
+    before(() => {
+      configuration.skipConnection = true
+
+      modelStoreMock.sequelize.sync = sinon.mock()
+        .never()
 
       modelStoreFactoryMock.create = sinon.mock()
         .once()
@@ -88,15 +111,18 @@ describe('initialize', () => {
         .returns(modelStoreMock)
 
       consoleMock.log = sinon.mock()
-        .once()
-        .withExactArgs(`Could not connect to database`, error)
+        .never()
 
       initializeResult = initialize(configuration, { modelStoreFactory: modelStoreFactoryMock, console: consoleMock })
     })
 
-    it('syncronizes with sequelize', () => modelStoreMock.sequelize.sync.verify())
+    after(() => {
+      delete configuration.skipConnection
+    })
+
+    it('does not syncronizes with sequelize', () => modelStoreMock.sequelize.sync.verify())
     it('creates a model store', () => modelStoreFactoryMock.create.verify())
-    it('log an error message on console', () => consoleMock.log.verify())
-    it('returns an error', () => expect(initializeResult).to.be.eventually.rejectedWith(error))
+    it('does not log a status message on console', () => consoleMock.log.verify())
+    it('returns a model store', () => expect(initializeResult).to.be.eventually.equal(modelStoreMock))
   })
 })
