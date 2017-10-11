@@ -85,6 +85,20 @@ class BaseRepository {
       .then(() => entityInstance)
   }
 
+  updateByDiff (originalEntity, updatedEntity, relationshipFields) {
+    const fields = Object.keys(originalEntity)
+      .filter((key) => {
+        const originalValue = originalEntity[key]
+        const updatedlValue = updatedEntity[key]
+
+        return originalValue !== updatedlValue
+      })
+
+    if (!fields.length) return Promise.resolve(originalEntity)
+
+    return this.update(updatedEntity, fields, relationshipFields)
+  }
+
   delete (entityInstance) {
     const { sequelizeModel, mapper } = this
 
