@@ -47,5 +47,19 @@ describe('AutoMapper', () => {
       expect(autoMapped.toEntity.someEntityFieldToBeExcluded).to.be.undefined
       expect(autoMapped.toDatabase.someEntityFieldToBeExcluded).to.be.undefined
     })
+
+    it('Map without specifying opitions', () => {
+      const someEntity = {
+        SCHEMA: {
+          someEntityId: ''
+        }
+      }
+
+      const mapResult = new AutoMapper().createMapFromEntity(someEntity)
+      const autoMapped = mapResult.map
+
+      expect(autoMapped.toEntity.someEntityId).to.equals('someEntityId')
+      expect(autoMapped.toDatabase.someEntityId).to.equals('someEntityId')
+    })
   })
 })
