@@ -48,3 +48,26 @@ const map = {
 module.exports = new Mapper(Object, map)
 
 ```
+
+#### Auto Mapper
+
+Creates a Mapper without specifying manually the map fields:
+
+```javascript
+  const { AutoMapper } = require('speck-sequelize-repository')
+  const mapper = new AutoMapper(someSpeckEntity)
+```
+
+The map fields will be automatically created from a speck entity. Note: entity relationships will have opinionated naming, example: `entity.relationship` will expect on database a `relationship` table with `relationshipId` field.
+
+You can also **override** some of the automatically generated fields naming, or **exclude** entity properties from map on AutoMapper constructor:
+
+```javascript
+  const mapper = new AutoMapper(someSpeckEntity, {
+     override: {
+       entityField: 'otherFieldName',
+       entityRelationshipField: 'otherTableName.otherFieldName'
+     },
+     exclude: ['someEntityProperty']
+  )
+```
