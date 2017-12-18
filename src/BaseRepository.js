@@ -22,6 +22,7 @@ class BaseRepository {
     this.updateFields = this.updateFields.bind(this)
 
     this.delete = this.delete.bind(this)
+    this.deleteAllByCriterias = this.deleteAllByCriterias.bind(this)
   }
 
   hasPrimaryKeyFilled (entityInstance) {
@@ -99,7 +100,7 @@ class BaseRepository {
     return this.update(updatedEntity, fields, relationshipFields)
   }
 
-  delete (entityInstance) {
+  delete (entityInstance, options = null) {
     const { sequelizeModel, mapper } = this
 
     const buildParameters = {
@@ -108,7 +109,11 @@ class BaseRepository {
 
     return sequelizeModel
       .build(mapper.toDatabase(entityInstance), buildParameters)
-      .destroy()
+      .destroy(options)
+  }
+
+  deleteAllByCriterias (where, options = {}) {
+    return this.sequelizeModel.destroy(Object.assign(options, { where }))
   }
 
   resolveNullField (value) {
