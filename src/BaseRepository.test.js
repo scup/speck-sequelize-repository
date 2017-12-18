@@ -70,7 +70,7 @@ describe('BaseRepository', () => {
   })
 
   describe('#delete', () => {
-    it('delete the instance', () => {
+    it('deletes the instance', async () => {
       const newRecordInstance = 'removed'
       const resultInstance = newRecordInstance
 
@@ -82,12 +82,62 @@ describe('BaseRepository', () => {
         .withArgs(newRecordInstance)
         .returns(sequelizeModel)
 
-      sequelizeModel.destroy = sinon.stub()
-        .withArgs()
-        .returns(Promise.resolve(newRecordInstance))
+      sequelizeModel.destroy = sinon.mock()
+        .withExactArgs(null)
+        .resolves(newRecordInstance)
 
-      return repository.delete(newRecordInstance)
-        .then(result => expect(result).to.equal(resultInstance))
+      const result = await repository.delete(newRecordInstance)
+      sequelizeModel.destroy.verify()
+      expect(result).to.equal(resultInstance)
+    })
+
+    it('deletes the instance with options', async () => {
+      const newRecordInstance = 'removed'
+      const resultInstance = newRecordInstance
+      const options = { force: true }
+
+      mapper.toDatabase = sinon.stub()
+        .withArgs(newRecordInstance)
+        .returns(newRecordInstance)
+
+      sequelizeModel.build = sinon.stub()
+        .withArgs(newRecordInstance)
+        .returns(sequelizeModel)
+
+      sequelizeModel.destroy = sinon.mock()
+        .withExactArgs(options)
+        .resolves(newRecordInstance)
+
+      const result = await repository.delete(newRecordInstance, options)
+      sequelizeModel.destroy.verify()
+      expect(result).to.equal(resultInstance)
+    })
+  })
+
+  describe('#deleteAllByCriterias', () => {
+    it('deletes all instances matching a criteria', async () => {
+      const criteria = { field: 'value' }
+
+      sequelizeModel.destroy = sinon.mock()
+        .withExactArgs({ where: { field: 'value' } })
+        .resolves('delete result')
+
+      const result = await repository.deleteAllByCriterias(criteria)
+      sequelizeModel.destroy.verify()
+      expect(result).to.equal('delete result')
+    })
+
+    it('deletes all instances matching a criteria, with options', async () => {
+      const criteria = { field: 'value' }
+      const options = { force: true }
+
+      sequelizeModel.destroy = sinon.mock()
+        .withExactArgs({ where: { field: 'value' }, force: true })
+        .resolves('delete result')
+
+      const result = await repository.deleteAllByCriterias(criteria, options)
+      sequelizeModel.destroy.verify()
+      expect(result).to.equal('delete result')
     })
   })
 
