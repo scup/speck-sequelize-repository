@@ -11,6 +11,7 @@ class BaseRepository {
     }
 
     this.findOneBy = this.findOneBy.bind(this)
+    this.findOneById = this.findOneById.bind(this)
     this.findOneByCriterias = this.findOneByCriterias.bind(this)
     this.findAllBy = this.findAllBy.bind(this)
     this.findAllByCriterias = this.findAllByCriterias.bind(this)
@@ -20,6 +21,7 @@ class BaseRepository {
     this.save = this.save.bind(this)
     this.update = this.update.bind(this)
     this.updateFields = this.updateFields.bind(this)
+    this.updateByDiff = this.updateByDiff.bind(this)
 
     this.delete = this.delete.bind(this)
     this.deleteAllByCriterias = this.deleteAllByCriterias.bind(this)
@@ -138,19 +140,6 @@ class BaseRepository {
     return this.sequelizeModel.findOne(options).then(this.mapper.toEntity)
   }
 
-  findAllBy (options) {
-    return this.sequelizeModel.findAll(options).then(this.mapper.toEntity)
-  }
-
-  findAllByCriterias (where, options = {}) {
-    const { paranoid = true } = options
-    return this.findAllBy({ where, raw: true, paranoid })
-  }
-
-  findOneByCriterias (where) {
-    return this.findOneBy({ where, raw: true })
-  }
-
   findOneById (id) {
     return this.findOneBy({
       where: {
@@ -158,6 +147,19 @@ class BaseRepository {
       },
       raw: true
     })
+  }
+
+  findOneByCriterias (where) {
+    return this.findOneBy({ where, raw: true })
+  }
+
+  findAllBy (options) {
+    return this.sequelizeModel.findAll(options).then(this.mapper.toEntity)
+  }
+
+  findAllByCriterias (where, options = {}) {
+    const { paranoid = true } = options
+    return this.findAllBy({ where, raw: true, paranoid })
   }
 
   countByCriterias (where) {
