@@ -91,7 +91,8 @@ class BaseRepository {
   }
 
   upsert (insertValues, updateValues, where) {
-    return this.queryInterface.upsert(this.sequelizeModel.tableName, insertValues, updateValues, where, this.sequelizeModel, {})
+    const { sequelizeModel } = this
+    return this.queryInterface.upsert(sequelizeModel.tableName, insertValues, updateValues, where, sequelizeModel, {})
   }
 
   updateByDiff (originalEntity, updatedEntity, relationshipFields) {
