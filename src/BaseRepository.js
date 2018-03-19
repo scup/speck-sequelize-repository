@@ -2,8 +2,12 @@ class BaseRepository {
   constructor ({ sequelizeModel, mapper }) {
     Object.assign(
       this,
-      { sequelizeModel, mapper },
-      { sequelize: sequelizeModel && sequelizeModel.sequelize }
+      {
+        sequelizeModel,
+        mapper,
+        sequelize: sequelizeModel && sequelizeModel.sequelize,
+        queryInterface: sequelizeModel && sequelizeModel.sequelize.getQueryInterface()
+      }
     )
 
     if (sequelizeModel && sequelizeModel.primaryKeys) {
@@ -31,17 +35,15 @@ class BaseRepository {
     return entityInstance && this.primaryKey && entityInstance[this.primaryKey]
   }
 
-  save (entityInstance) {
+  async save (entityInstance) {
     const { sequelizeModel, mapper } = this
 
     const buildParameters = {
       isNewRecord: !this.hasPrimaryKeyFilled(entityInstance)
     }
 
-    return sequelizeModel
-      .build(mapper.toDatabase(entityInstance), buildParameters)
-      .save()
-      .then(sequelizeResult => this.assignEntityToSequelizeResult(entityInstance, sequelizeResult))
+    const sequelizeResult = await sequelizeModel.build(mapper.toDatabase(entityInstance), buildParameters).save()
+    return this.assignEntityToSequelizeResult(entityInstance, sequelizeResult)
   }
 
   assignEntityToSequelizeResult (entity, sequelizeResult) {
