@@ -17,6 +17,7 @@ describe('BaseRepository', () => {
   context('simple repositories', function () {
     beforeEach('Prepare repository', () => {
       sequelizeModel = {
+        tableName: 'anyTable',
         primaryKeys: {
           primaryKey1: null
         },
@@ -64,7 +65,7 @@ describe('BaseRepository', () => {
 
         sequelizeModel.save = mock()
           .withExactArgs()
-          .returns(Promise.resolve(savedRecordInstance))
+          .resolves(savedRecordInstance)
 
         return repository.save(newRecordInstance)
           .then(result => expect(result).to.deep.equal(resultAssigned))
@@ -154,9 +155,8 @@ describe('BaseRepository', () => {
         }
 
         repository.update = mock()
-          .once()
           .withExactArgs(expectedColumnsToChange, ['myField'], {}, [])
-          .returns(Promise.resolve('update result'))
+          .resolves('udate result')
 
         return repository.updateFields(recordInstance, {
           myField: 'new value'
@@ -195,9 +195,8 @@ describe('BaseRepository', () => {
         }
 
         sequelizeModel.update = mock()
-          .once()
           .withExactArgs(expectedColumnsToChange, expectedConstraints)
-          .returns(Promise.resolve('update result'))
+          .resolves('udate result')
 
         return repository.update(recordInstance, fieldsToUpdate)
           .then(result => expect(recordInstance).to.equal(result))
@@ -235,9 +234,8 @@ describe('BaseRepository', () => {
         }
 
         sequelizeModel.update = mock()
-          .once()
           .withExactArgs(expectedColumnsToChange, expectedConstraints)
-          .returns(Promise.resolve('update result'))
+          .resolves('udate result')
 
         return repository.update(recordInstance, fieldsToUpdate, {}, whereFields)
           .then(result => expect(recordInstance).to.equal(result))
@@ -272,7 +270,7 @@ describe('BaseRepository', () => {
         sequelizeModel.update = mock()
           .once()
           .withExactArgs(relationshipFields, expectedConstraints)
-          .returns(Promise.resolve('update result'))
+          .resolves('udate result')
 
         return repository.update(recordInstance, fieldsToUpdate, relationshipFields)
           .then(result => expect(recordInstance).to.equal(result))
@@ -318,7 +316,7 @@ describe('BaseRepository', () => {
         const updateMock = mock(repository)
           .expects('update')
           .withExactArgs(copy, ['fieldToUpdate', 'nullFieldToUpdate'], undefined)
-          .returns(Promise.resolve(copy))
+          .resolves(copy)
 
         return repository.updateByDiff(recordInstance, copy)
           .then((result) => {
@@ -347,7 +345,7 @@ describe('BaseRepository', () => {
           sequelizeModel[method.onSequelize] = mock()
             .once()
             .withExactArgs(findOptions)
-            .returns(Promise.resolve(sequelizeResult))
+            .resolves(sequelizeResult)
 
           mapper.toEntity = mock()
             .once()
@@ -368,6 +366,24 @@ describe('BaseRepository', () => {
           .returns('count result')
 
         expect(repository.countByCriterias(criterias)).to.equal('count result')
+      })
+    })
+
+    describe('#upsert', function () {
+      it('updates fields by when pass object', async function () {
+        const insertValues = { insertField: 'new value' }
+        const updateValues = { updateField: 'new value' }
+        const where = { whereField: 'new value' }
+        const expectedResult = { any: 'value' }
+
+        repository.queryInterface = {
+          upsert: mock()
+            .withExactArgs(sequelizeModel.tableName, insertValues, updateValues, where, sequelizeModel, {})
+            .resolves(expectedResult)
+        }
+
+        const result = await repository.upsert(insertValues, updateValues, where)
+        expect(result).to.equal(expectedResult)
       })
     })
 

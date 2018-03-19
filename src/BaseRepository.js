@@ -6,29 +6,29 @@ class BaseRepository {
         sequelizeModel,
         mapper,
         sequelize: sequelizeModel && sequelizeModel.sequelize,
-        queryInterface: sequelizeModel && sequelizeModel.sequelize.getQueryInterface()
+        queryInterface: sequelizeModel && sequelizeModel.sequelize.getQueryInterface(),
+        findOneBy: this.findOneBy.bind(this),
+        findOneById: this.findOneById.bind(this),
+        findOneByCriterias: this.findOneByCriterias.bind(this),
+        findAllBy: this.findAllBy.bind(this),
+        findAllByCriterias: this.findAllByCriterias.bind(this),
+
+        countByCriterias: this.countByCriterias.bind(this),
+
+        save: this.save.bind(this),
+        update: this.update.bind(this),
+        upsert: this.upsert.bind(this),
+        updateFields: this.updateFields.bind(this),
+        updateByDiff: this.updateByDiff.bind(this),
+
+        delete: this.delete.bind(this),
+        deleteAllByCriterias: this.deleteAllByCriterias.bind(this)
       }
     )
 
     if (sequelizeModel && sequelizeModel.primaryKeys) {
       this.primaryKey = Object.keys(sequelizeModel.primaryKeys)[0]
     }
-
-    this.findOneBy = this.findOneBy.bind(this)
-    this.findOneById = this.findOneById.bind(this)
-    this.findOneByCriterias = this.findOneByCriterias.bind(this)
-    this.findAllBy = this.findAllBy.bind(this)
-    this.findAllByCriterias = this.findAllByCriterias.bind(this)
-
-    this.countByCriterias = this.countByCriterias.bind(this)
-
-    this.save = this.save.bind(this)
-    this.update = this.update.bind(this)
-    this.updateFields = this.updateFields.bind(this)
-    this.updateByDiff = this.updateByDiff.bind(this)
-
-    this.delete = this.delete.bind(this)
-    this.deleteAllByCriterias = this.deleteAllByCriterias.bind(this)
   }
 
   hasPrimaryKeyFilled (entityInstance) {
@@ -88,6 +88,11 @@ class BaseRepository {
     return sequelizeModel
       .update(columnValues, constraints)
       .then(() => entityInstance)
+  }
+
+  upsert (insertValues, updateValues, where) {
+    const { sequelizeModel } = this
+    return this.queryInterface.upsert(sequelizeModel.tableName, insertValues, updateValues, where, sequelizeModel, {})
   }
 
   updateByDiff (originalEntity, updatedEntity, relationshipFields) {
