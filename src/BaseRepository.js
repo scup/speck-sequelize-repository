@@ -90,6 +90,10 @@ class BaseRepository {
       .then(() => entityInstance)
   }
 
+  upsert (insertValues, updateValues, where) {
+    return this.queryInterface.upsert(this.sequelizeModel.tableName, insertValues, updateValues, where, this.sequelizeModel, {})
+  }
+
   updateByDiff (originalEntity, updatedEntity, relationshipFields) {
     const fields = Object.keys(originalEntity)
       .filter((key) => {
