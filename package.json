@@ -43,7 +43,9 @@
     "watch-cli": "^0.2.3"
   },
   "peerDependencies": {
-    "sequelize": "^3.0.0 || ^4.0.0"
+    "sequelize": "^3.0.0 || ^4.0.0",
+    "object-mapper": "^5.0.0",
+    "pg": "^6.0.0 || ^7.0.0"
   },
   "nyc": {
     "branches": 100,
