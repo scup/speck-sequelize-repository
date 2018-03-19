@@ -1,26 +1,22 @@
 const dependencies = {
   modelStoreFactory: require('./ModelStoreFactory'),
-  console: console
+  console
 }
 
-module.exports = function initialize (configuration, injection) {
+module.exports = async function initialize (configuration, injection) {
   const { modelStoreFactory, console } = Object.assign({}, dependencies, injection)
 
   const modelStore = modelStoreFactory.create(configuration, injection)
 
-  if (configuration.skipConnection) {
-    return Promise.resolve(modelStore)
-  }
+  if (configuration.skipConnection) { return modelStore }
 
-  return modelStore.sequelize
-          .sync()
-          .then(sequelize => {
-            const { config } = sequelize
-            console.log(`Connected to database ${config.database} on ${config.host}:${config.port}`)
-            return modelStore
-          })
-          .catch(reason => {
-            console.log(`Could not connect to database`, reason.message)
-            return Promise.reject(reason)
-          })
+  try {
+    await modelStore.sequelize.validate()
+    const { config } = modelStore.sequelize
+    console.log(`Connected to database ${config.database} on ${config.host}:${config.port}`)
+    return modelStore
+  } catch (error) {
+    console.log('Could not connect to database', error.message)
+    throw error
+  }
 }

@@ -44,8 +44,8 @@ describe('AutoMapper', () => {
     })
 
     it('Field marked as excluded should not be mapped', () => {
-      expect(autoMapped.toEntity.someEntityFieldToBeExcluded).to.be.undefined
-      expect(autoMapped.toDatabase.someEntityFieldToBeExcluded).to.be.undefined
+      expect(autoMapped.toEntity.someEntityFieldToBeExcluded).to.equal(undefined)
+      expect(autoMapped.toDatabase.someEntityFieldToBeExcluded).to.equal(undefined)
     })
 
     it('Map without specifying opitions', () => {

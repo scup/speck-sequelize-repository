@@ -5,7 +5,6 @@ const initialize = require('./initialize')
 
 describe('initialize', () => {
   let configuration
-  let sequelize
 
   let modelStoreMock
   let modelStoreFactoryMock
@@ -25,17 +24,10 @@ describe('initialize', () => {
       }
     }
 
-    sequelize = {
-      config: {
-        database: 'some database',
-        host: 'some host',
-        port: 'some port'
-      }
-    }
-
     modelStoreMock = {
       sequelize: {
-        sync: sinon.mock()
+        validate: sinon.mock(),
+        config: configuration
       }
     }
 
@@ -49,27 +41,23 @@ describe('initialize', () => {
   })
 
   describe('initializes the sequelize successfully', () => {
-    before(() => {
-      modelStoreMock.sequelize.sync = sinon.mock()
-        .once()
-        .returns(Promise.resolve(sequelize))
+    before(async () => {
+      modelStoreMock.sequelize.validate = sinon.mock().resolves()
 
       modelStoreFactoryMock.create = sinon.mock()
-        .once()
         .withArgs(configuration)
         .returns(modelStoreMock)
 
       consoleMock.log = sinon.mock()
-        .once()
-        .withExactArgs(`Connected to database ${sequelize.config.database} on ${sequelize.config.host}:${sequelize.config.port}`)
+        .withExactArgs(`Connected to database ${configuration.database} on ${configuration.host}:${configuration.port}`)
 
-      initializeResult = initialize(configuration, { modelStoreFactory: modelStoreFactoryMock, console: consoleMock })
+      initializeResult = await initialize(configuration, { modelStoreFactory: modelStoreFactoryMock, console: consoleMock })
     })
 
-    it('syncronizes with sequelize', () => modelStoreMock.sequelize.sync.verify())
+    it('validates with sequelize', () => modelStoreMock.sequelize.validate.verify())
     it('creates a model store', () => modelStoreFactoryMock.create.verify())
     it('log a status message on console', () => consoleMock.log.verify())
-    it('returns a model store', () => expect(initializeResult).to.be.eventually.equal(modelStoreMock))
+    it('returns a model store', () => expect(initializeResult).to.equal(modelStoreMock))
   })
 
   describe('do not initialize due error', () => {
@@ -78,7 +66,7 @@ describe('initialize', () => {
     before(() => {
       error = 'an error'
 
-      modelStoreMock.sequelize.sync = sinon.mock()
+      modelStoreMock.sequelize.validate = sinon.mock()
         .rejects({ message: error })
 
       modelStoreFactoryMock.create = sinon.mock()
@@ -89,10 +77,10 @@ describe('initialize', () => {
         .withExactArgs(`Could not connect to database`, sinon.match.any)
 
       initializeResult = initialize(configuration, { modelStoreFactory: modelStoreFactoryMock, console: consoleMock })
-      initializeResult.catch(() => {})
+      return initializeResult.catch(() => {})
     })
 
-    it('syncronizes with sequelize', () => modelStoreMock.sequelize.sync.verify())
+    it('validates with sequelize', () => modelStoreMock.sequelize.validate.verify())
     it('creates a model store', () => modelStoreFactoryMock.create.verify())
     it('log an error message on console', () => consoleMock.log.verify())
     it('returns an error', () => expect(initializeResult).to.eventually.rejectedWith(error))
@@ -102,25 +90,23 @@ describe('initialize', () => {
     before(() => {
       configuration.skipConnection = true
 
-      modelStoreMock.sequelize.sync = sinon.mock()
-        .never()
+      modelStoreMock.sequelize.validate = sinon.mock().never()
 
       modelStoreFactoryMock.create = sinon.mock()
-        .once()
         .withArgs(configuration)
         .returns(modelStoreMock)
 
-      consoleMock.log = sinon.mock()
-        .never()
+      consoleMock.log = sinon.mock().never()
 
       initializeResult = initialize(configuration, { modelStoreFactory: modelStoreFactoryMock, console: consoleMock })
+      return initializeResult
     })
 
     after(() => {
       delete configuration.skipConnection
     })
 
-    it('does not syncronizes with sequelize', () => modelStoreMock.sequelize.sync.verify())
+    it('does not validate with sequelize', () => modelStoreMock.sequelize.validate.verify())
     it('creates a model store', () => modelStoreFactoryMock.create.verify())
     it('does not log a status message on console', () => consoleMock.log.verify())
     it('returns a model store', () => expect(initializeResult).to.be.eventually.equal(modelStoreMock))
