@@ -11,6 +11,7 @@ describe('modelStoreFactory', () => {
   let modelAssociate
   let configuration
   let modelStore
+  let injectedModels
 
   before('calls modelStoreFactory.create with mocks', () => {
     model = {
@@ -22,9 +23,13 @@ describe('modelStoreFactory', () => {
       associate: sinon.mock()
     }
 
+    injectedModels = [
+      () => sinon.stub({ name: 'mymodule' })
+    ]
+
     modelAssociate.associate
       .once()
-      .withExactArgs({ model, modelAssociate })
+      .withExactArgs({ model, modelAssociate, mymodule: { name: 'mymodule' } })
 
     configuration = {
       database: {
@@ -33,7 +38,8 @@ describe('modelStoreFactory', () => {
         password: 'some password'
       },
       files: {
-        rootDir: 'some root dir'
+        rootDir: 'some root dir',
+        models: injectedModels
       }
     }
 
