@@ -26,7 +26,8 @@
     "url": "https://github.com/scup/speck-sequelize-repository/issues"
   },
   "dependencies": {
-    "object-mapper": "^5.0.0"
+    "object-mapper": "^5.0.0",
+    "pg": "^7.6.1"
   },
   "devDependencies": {
     "chai": "^4.1.0",
@@ -45,7 +46,7 @@
   "peerDependencies": {
     "sequelize": "^3.0.0 || ^4.0.0",
     "object-mapper": "^5.0.0",
-    "pg": "^6.0.0 || ^7.0.0"
+    "pg": "^6.0.0 || ^7.6.1"
   },
   "nyc": {
     "branches": 100,
