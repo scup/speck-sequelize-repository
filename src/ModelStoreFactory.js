@@ -28,13 +28,22 @@ const associateModels = (models) => (modelName) => {
   }
 }
 
-const readModels = (sequelize, rootDir, extensionRegex, injection) => {
-  const { join, fs } = Object.assign({}, dependencies, injection)
+const readModels = (sequelize, rootDir, extensionRegex, injectedModels, injection) => {
+  const { join, fs, Sequelize } = Object.assign({}, dependencies, injection)
 
-  const models = fs
+  let models = {}
+
+  if ((injectedModels || []).length > 0) {
+    injectedModels.forEach((_module) => {
+      const model = _module(sequelize, Sequelize)
+      models[model.name] = model
+    })
+  }
+
+  models = Object.assign(models, fs
     .readdirSync(rootDir)
     .filter(file => filterModelFiles(file, rootDir, extensionRegex))
-    .reduce(importModel(sequelize, join, rootDir), {})
+    .reduce(importModel(sequelize, join, rootDir), {}))
 
   Object.keys(models).forEach(associateModels(models))
 
@@ -46,7 +55,7 @@ const create = (configuration, injection) => {
 
   const databaseConfiguration = configuration.database
 
-  const { rootDir, extensionRegex } = configuration.files
+  const { rootDir, extensionRegex, models } = configuration.files
 
   const sequelize = new Sequelize(
     databaseConfiguration.database,
@@ -55,9 +64,9 @@ const create = (configuration, injection) => {
     databaseConfiguration
   )
 
-  const models = readModels(sequelize, rootDir, extensionRegex, injection)
+  const loadedModels = readModels(sequelize, rootDir, extensionRegex, models, injection)
 
-  return new ModelStore(Object.assign({}, models, { sequelize }))
+  return new ModelStore(Object.assign({}, loadedModels, { sequelize }))
 }
 
 const modelStoreFactory = {
