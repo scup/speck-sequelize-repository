@@ -26,6 +26,8 @@
     "url": "https://github.com/scup/speck-sequelize-repository/issues"
   },
   "dependencies": {
+    "mysql": "^2.16.0",
+    "mysql2": "^1.6.4",
     "object-mapper": "^5.0.0",
     "pg": "^7.6.1"
   },

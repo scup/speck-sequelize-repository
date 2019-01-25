@@ -130,6 +130,18 @@ describe('BaseRepository', () => {
         expect(result).to.equal('delete result')
       })
 
+      it('returns error when invalid where clause', async () => {
+        const criteria = {}
+        sequelizeModel.destroy = mock()
+          .withExactArgs({ where: {} })
+
+        const executeFunc = function () {
+          return repository.deleteAllByCriterias(criteria)
+        }
+
+        expect(executeFunc).to.throw('where clause is required!')
+      })
+
       it('deletes all instances matching a criteria, with options', async () => {
         const criteria = { field: 'value' }
         const options = { force: true }
@@ -274,6 +286,39 @@ describe('BaseRepository', () => {
 
         return repository.update(recordInstance, fieldsToUpdate, relationshipFields)
           .then(result => expect(recordInstance).to.equal(result))
+      })
+
+      it('returns error when update with invalid where clause', () => {
+        const recordInstance = {
+          relationship: {
+            fieldToUpdate: 'new value'
+          }
+        }
+
+        const fieldsToUpdate = []
+        const relationshipFields = { fieldToUpdate: 'some value' }
+
+        mapper.toDatabase = stub()
+        mapper.toDatabase
+          .withArgs({})
+          .returns({})
+        mapper.toDatabase
+          .returns({})
+
+        const expectedConstraints = {
+          where: {},
+          fields: ['fieldToUpdate']
+        }
+
+        sequelizeModel.update = mock()
+          .once()
+          .withExactArgs(relationshipFields, expectedConstraints)
+          .resolves('udate result')
+
+        const executeFunc = function () {
+          return repository.update(recordInstance, fieldsToUpdate, relationshipFields)
+        }
+        expect(executeFunc).to.throw('where clause is required!')
       })
     })
 
