@@ -66,7 +66,9 @@ class BaseRepository {
     return this.update(entityInstance, fieldsToChange, relationshipFields, whereFields)
   }
 
-  update (entityInstance, fields, relationshipFields = {}, whereFields = []) {
+  update (entityInstance, fields, relationshipFields = {}, whereFields = [], extraOptions = {
+    requiredWhereClause: true
+  }) {
     const { sequelizeModel, mapper } = this
 
     const entityFieldValues = fields.reduce((all, field) =>
@@ -80,8 +82,15 @@ class BaseRepository {
 
     whereFields.forEach((field) => Object.assign(entityKeyValues, { [field]: entityInstance[field] }))
 
+    const where = mapper.toDatabase(entityKeyValues)
+    const whereKeys = Object.keys(where)
+
+    if (whereKeys.length === 0 && extraOptions.requiredWhereClause) {
+      throw new Error('where clause is required!')
+    }
+
     const constraints = {
-      where: mapper.toDatabase(entityKeyValues),
+      where,
       fields: Object.keys(columnValues)
     }
 
@@ -121,7 +130,15 @@ class BaseRepository {
       .destroy(options)
   }
 
-  deleteAllByCriterias (where, options = {}) {
+  deleteAllByCriterias (where, options = {}, extraOptions = {
+    requiredWhereClause: true
+  }) {
+    const whereKeys = Object.keys(where)
+
+    if (whereKeys.length === 0 && extraOptions.requiredWhereClause) {
+      throw new Error('where clause is required!')
+    }
+
     return this.sequelizeModel.destroy(Object.assign(options, { where }))
   }
 
