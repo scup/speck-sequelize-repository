@@ -320,6 +320,77 @@ describe('BaseRepository', () => {
         }
         expect(executeFunc).to.throw('where clause is required!')
       })
+
+      it('update one item by criterias', () => {
+        const whereClause = {
+          primaryKey1: 1
+        }
+        const recordInstance = {
+          fieldToUpdate: 'new value'
+        }
+
+        const fieldsToUpdate = ['fieldToUpdate']
+        const relationshipFields = { fieldToUpdate: 'some value' }
+
+        mapper.toDatabase = stub()
+        mapper.toDatabase
+          .withArgs({ fieldToUpdate: recordInstance.fieldToUpdate })
+          .returns({ fieldToUpdate: recordInstance.fieldToUpdate })
+        mapper.toDatabase
+          .withArgs({ primaryKey1: whereClause.primaryKey1 })
+          .returns({ primaryKey1: whereClause.primaryKey1 })
+
+        const expectedConstraints = {
+          where: {
+            primaryKey1: whereClause.primaryKey1
+          },
+          limit: 1,
+          fields: ['fieldToUpdate']
+        }
+
+        sequelizeModel.update = mock()
+          .once()
+          .withExactArgs(relationshipFields, expectedConstraints)
+          .resolves('udate result')
+
+        return repository.updateOneBy(whereClause, recordInstance, fieldsToUpdate, relationshipFields)
+          .then(result => expect(recordInstance).to.equal(result))
+      })
+
+      it('#updateOneBy returns error when invalid where clause', () => {
+        const whereClause = {}
+        const recordInstance = {
+          fieldToUpdate: 'new value'
+        }
+
+        const fieldsToUpdate = ['fieldToUpdate']
+        const relationshipFields = { fieldToUpdate: 'some value' }
+
+        mapper.toDatabase = stub()
+        mapper.toDatabase
+          .withArgs({ fieldToUpdate: recordInstance.fieldToUpdate })
+          .returns({ fieldToUpdate: recordInstance.fieldToUpdate })
+        mapper.toDatabase
+          .withArgs({})
+          .returns({})
+
+        const expectedConstraints = {
+          where: {},
+          limit: 1,
+          fields: ['fieldToUpdate']
+        }
+
+        sequelizeModel.update = mock()
+          .once()
+          .withExactArgs(relationshipFields, expectedConstraints)
+          .resolves('udate result')
+
+        const executeFunc = function () {
+          return repository.updateOneBy(whereClause, recordInstance, fieldsToUpdate)
+        }
+
+        expect(executeFunc).to.throw('where clause is required!')
+      })
     })
 
     describe('#updateByDiff', () => {

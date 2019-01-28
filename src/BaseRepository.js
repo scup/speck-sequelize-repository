@@ -19,6 +19,7 @@ class BaseRepository {
         update: this.update.bind(this),
         upsert: this.upsert.bind(this),
         updateFields: this.updateFields.bind(this),
+        updateOneBy: this.updateOneBy.bind(this),
         updateByDiff: this.updateByDiff.bind(this),
 
         delete: this.delete.bind(this),
@@ -64,6 +65,31 @@ class BaseRepository {
     Object.assign(entityInstance, newFields)
 
     return this.update(entityInstance, fieldsToChange, relationshipFields, whereFields)
+  }
+
+  updateOneBy (where, entityInstance, fields, relationshipFields = {}) {
+    const { sequelizeModel, mapper } = this
+
+    const entityFieldValues = fields.reduce((all, field) =>
+      Object.assign(all, { [field]: this.resolveNullField(entityInstance[field]) }), {})
+
+    const columnValues = Object.assign({}, this.setNullFields(mapper.toDatabase(entityFieldValues)), relationshipFields)
+
+    const constraints = {
+      where: mapper.toDatabase(where),
+      limit: 1,
+      fields: Object.keys(columnValues)
+    }
+
+    const whereKeys = Object.keys(constraints.where)
+
+    if (whereKeys.length === 0) {
+      throw new Error('where clause is required!')
+    }
+
+    return sequelizeModel
+      .update(columnValues, constraints)
+      .then(() => entityInstance)
   }
 
   update (entityInstance, fields, relationshipFields = {}, whereFields = [], extraOptions = {
